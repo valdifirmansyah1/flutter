@@ -22,12 +22,14 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.media.Image;
+import android.media.ImageReader;
 import android.os.Looper;
 import android.view.Surface;
 import androidx.lifecycle.Lifecycle;
@@ -45,9 +47,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.robolectric.annotation.Config;
 
-@Config(manifest = Config.NONE)
 @RunWith(AndroidJUnit4.class)
 public class FlutterRendererTest {
   @Rule(order = 1)
@@ -996,6 +996,55 @@ public class FlutterRendererTest {
   }
 
   @Test
+<<<<<<< HEAD
+=======
+  public void getSurface_doesNotReturnInvalidSurface() {
+    FlutterRenderer flutterRenderer = spy(engineRule.getFlutterEngine().getRenderer());
+    TextureRegistry.SurfaceProducer producer = flutterRenderer.createSurfaceProducer();
+    FlutterRenderer.ImageReaderSurfaceProducer spyImageReaderSurfaceProducer =
+        spy((FlutterRenderer.ImageReaderSurfaceProducer) producer);
+    ImageReader mockImageReader = mock(ImageReader.class);
+    ImageReader mockSecondImageReader = mock(ImageReader.class);
+    Surface firstMockSurface = mock(Surface.class);
+    Surface secondMockSurface = mock(Surface.class);
+
+    when(mockImageReader.getSurface()).thenReturn(firstMockSurface);
+    when(mockSecondImageReader.getSurface()).thenReturn(secondMockSurface);
+    when(firstMockSurface.isValid()).thenReturn(false);
+    when(spyImageReaderSurfaceProducer.createImageReader())
+        .thenReturn(mockImageReader)
+        .thenReturn(mockSecondImageReader);
+
+    Surface firstSurface = spyImageReaderSurfaceProducer.getSurface();
+    Surface secondSurface = spyImageReaderSurfaceProducer.getSurface();
+
+    assertNotEquals(firstSurface, secondSurface);
+    assertEquals(firstSurface, firstMockSurface);
+    assertEquals(secondSurface, secondMockSurface);
+  }
+
+  @Test
+  public void getSurface_consecutiveCallsReturnSameSurfaceIfStillValid() {
+    FlutterRenderer flutterRenderer = spy(engineRule.getFlutterEngine().getRenderer());
+    TextureRegistry.SurfaceProducer producer = flutterRenderer.createSurfaceProducer();
+    FlutterRenderer.ImageReaderSurfaceProducer spyImageReaderSurfaceProducer =
+        spy((FlutterRenderer.ImageReaderSurfaceProducer) producer);
+    ImageReader mockImageReader = mock(ImageReader.class);
+    Surface mockSurface = mock(Surface.class);
+
+    when(mockSurface.isValid()).thenReturn(true);
+    when(mockImageReader.getSurface()).thenReturn(mockSurface);
+    when(spyImageReaderSurfaceProducer.createImageReader()).thenReturn(mockImageReader);
+
+    Surface firstSurface = spyImageReaderSurfaceProducer.getSurface();
+    Surface secondSurface = spyImageReaderSurfaceProducer.getSurface();
+
+    assertEquals(firstSurface, secondSurface);
+    assertEquals(firstSurface, mockSurface);
+  }
+
+  @Test
+>>>>>>> 9f455d2486bcb28cad87b062475f42edc959f636
   public void getForcedNewSurface_returnsNewSurface() {
     FlutterRenderer flutterRenderer = spy(engineRule.getFlutterEngine().getRenderer());
     TextureRegistry.SurfaceProducer producer = flutterRenderer.createSurfaceProducer();
